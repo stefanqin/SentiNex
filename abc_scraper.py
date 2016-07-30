@@ -21,6 +21,7 @@ import json
 import requests
 import csv
 import sys
+import simplejson
 
 class ArticleGatherer:
     """Collects all articles related to a given topic."""
@@ -95,14 +96,29 @@ class ArticleGatherer:
         """
         # We must define a dictionary as JSON requires initial field to be a
         # dict.
+        row_num = 1
         article_metadata = {'list':[]}
         with open(self.article_metadata, 'w') as f:
             for article in article_list:
-                article_url = self.url + self.api_version + \
-                    '/{!s}'.format(article['contentid'])
-                r = requests.get(article_url)
-                content = r.json()
-                article_metadata['list'].append(content)
+                try:
+                    article_url = self.url + self.api_version + \
+                        '/{!s}'.format(article['contentid'])
+                    r = requests.get(article_url, timeout=5)
+                    content = r.json()
+                except requests.HTTPError:
+                    print('HTTP error at row:', row_num,
+                          'with URL:', article_url)
+                    continue
+                except simplejson.scanner.JSONDecodeError:
+                    print('JSON error at row:', row_num,
+                          'with URL:', article_url)
+                    continue
+                except requests.exceptions.ReadTimeout:
+                    print('Timeout error at row:', row_num,
+                          'with URL:', article_url)
+                    continue
+                row_num += 1
+
             json.dump(article_metadata, f, indent=1)
 
     def relevant_articles(self, article_list: dict) -> dict:
@@ -128,18 +144,22 @@ class ArticleGatherer:
         """
         keywords = []
 
-        unformatted_keywords = article['keywords'].split(',')
-        for word in unformatted_keywords:
-            keywords.append(word.strip().lower())
+        try:
+            unformatted_keywords = article['keywords'].split(',')
+            for word in unformatted_keywords:
+                keywords.append(word.strip().lower())
 
-        topic_keywords = self.topics[topic].split(',')
-        print(keywords)
-        intersect = list(set(keywords) & set(topic_keywords))
+            topic_keywords = self.topics[topic].split(',')
+            print(keywords)
+            intersect = list(set(keywords) & set(topic_keywords))
 
-        # Change depending on relevance.
-        if len(intersect) > 2:
-            print(article['title'])
-            return True
+            # Change depending on relevance.
+            if len(intersect) > 2:
+                print(article['title'])
+                return True
+        except KeyError:
+            pass
+
         return False
 
     def find_content(self):
