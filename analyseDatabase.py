@@ -1,13 +1,12 @@
-
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 import os
 import re
 from abc_scraper import SentimentAnalyser
->>>>>>> 7b747562b2da9d9eaa473c4b8b4189cabc0f6449
+from pprint import pprint
 
-API_KEY = "2a54637207d6bc412e628d503bade191d575ae68"
+API_KEY = "dd489551-a005-42a3-988d-7c59b3ad47da"
 
 
 class FileDatabase:
@@ -58,32 +57,11 @@ class Analysis:
     def addComment(self, a):
         self.comments.append(a)
 
-<<<<<<< HEAD
-def main():
-
-	db = FileDatabase()
-	sa = SentimentAnalyser(API_KEY)
-	reportAnalysis = []
-
-	releases = db.getReleases()
-	for r in releases:
-		analysis = Analysis()
-		for c in db.getComments(r):
-			analysis.addComment(sa.text_sentiment(c))
-		for a in db.getArticles(r):
-			analysis.addArticle(sa.text_sentiment(a))
-		
-		analysis.addText(sa.text_sentiment(r.getRelease()))
-		reportAnalysis.append(analysis)
-	for ra in reportAnalysis:
-		print(ra)
-=======
     def addArticle(self, a):
         self.articles.append(a)
 
     def addText(self, a):
         self.text.append(a)
->>>>>>> 7b747562b2da9d9eaa473c4b8b4189cabc0f6449
 
 
 def main():
@@ -92,19 +70,26 @@ def main():
     reportAnalysis = []
 
     releases = db.getReleases()
+    num = 1
     for r in releases:
         analysis = Analysis()
         for c in db.getComments(r):
+            print(c)
             response = sa.text_sentiment(c)
             analysis.addComment(response)
-        for a in db.getArticles(r):
-            response = sa.text_sentiment(a)
-            analysis.addArticle(response)
+         # for a in db.getArticles(r):
+         #     response = sa.text_sentiment(a)
+         #   analysis.addArticle(response)
 
-        analysis.addText(sa.text_sentiment(r.getRelease()))
+        analysis.addText(sa.text_sentiment(db.getRelease(r)))
         reportAnalysis.append(analysis)
-    for ra in reportAnalysis:
-        print(ra)
+        print(num)
+        num += 1
+    for r in reportAnalysis:
+        pprint(r)
+    pprint(reportAnalysis[0].comments)
+    print('#'*20)
+    pprint(reportAnalysis[0].text)
 
 if __name__ == '__main__':
     main()

@@ -1,5 +1,5 @@
-#!/usr/local/Cellar/python3/3.5.2/bin/python3
-
+#!bin/env/python3
+# -*- coding: utf-8 -*-
 # Scrapes articles from the ABC dataset and analyses collective sentiment.
 
 """
@@ -203,11 +203,16 @@ class SentimentAnalyser:
         """
         response_async = self.client.post_request({'text': text}, HODApps.ANALYZE_SENTIMENT,
                                       async=True)
+
         jobID = response_async['jobID']
 
-        response = self.client.get_job_status(jobID, callback=func, **kwargs)
-        while not response:
-            response = self.client.get_job_status(jobID, callback=func, **kwargs)
+        response = self.client.get_job_result(jobID)
+
+        # response = self.client.get_job_status(jobID, callback=func, **kwargs)
+        # while not response:
+        #     print('#'*20)
+        #     print(response)
+        #     response = self.client.get_job_status(jobID, callback=func, **kwargs)
 
         return response
 
