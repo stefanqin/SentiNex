@@ -12,6 +12,8 @@ Notes:
     information.
 """
 
+from watson_developer_cloud import AlchemyLanguageV1
+
 from configparser import ConfigParser
 from collections import defaultdict
 from pprint import pprint
@@ -22,6 +24,7 @@ import requests
 import csv
 import sys
 import simplejson
+
 
 class ArticleGatherer:
     """Collects all articles related to a given topic."""
@@ -132,8 +135,14 @@ class ArticleGatherer:
             for topic in self.topics:
                 for article in article_list['list']:
                     if self.on_topic(article, topic):
-                        ot_articles[topic].append(article['title'])
+                        try:
+                            ot_articles[topic].append(article)
+                        except KeyError:
+                            print('Keyword doesn\'t exist for:',
+                                  article['title'])
+                            continue
             pprint(ot_articles)
+        return ot_articles
 
     def on_topic(self, article: dict, topic: str):
         """Determine whether an article is on topic.
@@ -162,7 +171,7 @@ class ArticleGatherer:
 
         return False
 
-    def find_content(self):
+    def find_content(self, article_list: dict):
         """Get the content of the specified articles.
 
         Note:
@@ -170,13 +179,28 @@ class ArticleGatherer:
                 then analyse. The alternative is to first store all the content,
                 however this may lead to a very large file size and unintended
                 result.
+
+        Params:
+            article_list: Articles to perform sentiment analysis on.
         """
+
         NotImplemented
 
 
-class SentimentAnalysis:
+class SentimentAnalysis(AlchemyLanguageV1):
     """Analyses collective sentiment of the given articles."""
-    NotImplemented
+
+    def __init__(self, api_key):
+        super(SentimentAnalysis, self).__init__(api_key=api_key)
+
+    def text_sentiment(self, text: str) -> dict:
+        """Analyses the sentiment of a given text.
+
+        Params:
+            text: The text to analyse.
+        """
+        return self.emotion(text=text, show_source_text=False)
+
 
 def gen_params() -> dict:
     """Generate params based on .ini file."""
