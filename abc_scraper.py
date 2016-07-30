@@ -121,6 +121,7 @@ class ArticleGatherer:
                           'with URL:', article_url)
                     continue
                 row_num += 1
+                print(row_num)
 
             json.dump(article_metadata, f, indent=1)
 
