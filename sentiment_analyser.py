@@ -1,4 +1,4 @@
-#!bin/env/python3
+#!/usr/local/Cellar/python3/3.5.2/bin/python3
 # -*- coding: utf-8 -*-
 # Wrapper for sentiment analysis of a given text.
 
@@ -7,6 +7,7 @@ from havenondemand.hodclient import *
 from abc_scraper import gen_params
 
 import time
+
 
 
 class SentimentAnalyser:

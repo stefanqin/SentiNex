@@ -1,6 +1,6 @@
-#!/usr/bin/python2.7
-
+#!/usr/local/Cellar/python3/3.5.2/bin/python3
 import os, sys, re
+
 import sentiment_analyser
 
 API_KEY = "2a54637207d6bc412e628d503bade191d575ae68"
@@ -57,6 +57,7 @@ class Analysis:
 
 
 def main():
+
 	db = FileDatabase()
 	sa = SentimentAnalyser(API_KEY)
 	reportAnalysis = []
@@ -72,7 +73,7 @@ def main():
 		analysis.addText(sa.text_sentiment(r.getRelease()))
 		reportAnalysis.append(analysis)
 	for ra in reportAnalysis:
-		print ra
+		print(ra)
 
 
 

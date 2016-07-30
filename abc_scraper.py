@@ -1,5 +1,5 @@
-#!bin/env/python3
-# -*- coding: utf-8 -*-
+#!/usr/local/Cellar/python3/3.5.2/bin/python3
+
 # Scrapes articles from the ABC dataset and analyses collective sentiment.
 
 """
