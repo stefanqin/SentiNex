@@ -14,6 +14,9 @@ Notes:
 
 from watson_developer_cloud import AlchemyLanguageV1
 
+from havenondemand.hodclient import *
+import time
+
 from configparser import ConfigParser
 from collections import defaultdict
 from pprint import pprint
@@ -108,6 +111,7 @@ class ArticleGatherer:
                         '/{!s}'.format(article['contentid'])
                     r = requests.get(article_url, timeout=5)
                     content = r.json()
+                    article_metadata['list'].append(content)
                 except requests.HTTPError:
                     print('HTTP error at row:', row_num,
                           'with URL:', article_url)
@@ -133,6 +137,7 @@ class ArticleGatherer:
             article_list = json.load(f)
 
             for topic in self.topics:
+                print(topic)
                 for article in article_list['list']:
                     if self.on_topic(article, topic):
                         try:
@@ -141,7 +146,6 @@ class ArticleGatherer:
                             print('Keyword doesn\'t exist for:',
                                   article['title'])
                             continue
-            pprint(ot_articles)
         return ot_articles
 
     def on_topic(self, article: dict, topic: str):
@@ -159,7 +163,6 @@ class ArticleGatherer:
                 keywords.append(word.strip().lower())
 
             topic_keywords = self.topics[topic].split(',')
-            print(keywords)
             intersect = list(set(keywords) & set(topic_keywords))
 
             # Change depending on relevance.
@@ -186,20 +189,27 @@ class ArticleGatherer:
 
         NotImplemented
 
+class SentimentAnalyser:
+    """Sentiment analysis using the haven on demand API."""
 
-class SentimentAnalysis(AlchemyLanguageV1):
-    """Analyses collective sentiment of the given articles."""
+    def __init__(self, api_key, version='v1'):
+        self.client = HODClient(apikey=api_key, version=version)
 
-    def __init__(self, api_key):
-        super(SentimentAnalysis, self).__init__(api_key=api_key)
-
-    def text_sentiment(self, text: str) -> dict:
+    def text_sentiment(self, text, func=None, **kwargs):
         """Analyses the sentiment of a given text.
 
         Params:
             text: The text to analyse.
         """
-        return self.emotion(text=text, show_source_text=False)
+        response_async = self.client.post_request({'text': text}, HODApps.ANALYZE_SENTIMENT,
+                                      async=True)
+        jobID = response_async['jobID']
+
+        response = self.client.get_job_status(jobID, callback=func, **kwargs)
+        while not response:
+            response = self.client.get_job_status(jobID, callback=func, **kwargs)
+
+        return response
 
 
 def gen_params() -> dict:
@@ -217,6 +227,7 @@ def gen_params() -> dict:
 def main():
 
     params = gen_params()
+
     articles = ArticleGatherer(
         url=params['General']['url'],
         api_version=params['General']['api_version'],
@@ -233,7 +244,16 @@ def main():
     except IndexError:
         pass
 
-    articles.relevant_articles(chosen)
+    ot_articles = articles.relevant_articles(chosen)
+
+    sent = SentimentAnalyser(api_key=params['HavenOnDemand']['api_key'])
+
+    sentiment = defaultdict(dict)
+    for topic in params['Topics']:
+        for article in ot_articles[topic]:
+            sentiment[topic] = sent.text_sentiment(article['textPlain'])
+
+    pprint(sentiment)
 
 if __name__ == '__main__':
     main()
