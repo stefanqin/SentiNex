@@ -133,6 +133,7 @@ class ArticleGatherer:
             keywords.append(word.strip().lower())
 
         topic_keywords = self.topics[topic].split(',')
+        print(keywords)
         intersect = list(set(keywords) & set(topic_keywords))
 
         # Change depending on relevance.
