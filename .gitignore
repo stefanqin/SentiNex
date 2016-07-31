@@ -2,6 +2,7 @@
 *.csv
 *.txt
 *.json
+!sentiment/
 __pycache__/
 */*.pyc
 *.pyc
