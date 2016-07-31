@@ -297,7 +297,6 @@ def main():
             sentiment[topic] = sent.text_sentiment(article['textPlain'])
 
     pprint(sentiment)
-    sent.output_json(sentiment, 'ABC_sent.json')
 
 if __name__ == '__main__':
     main()

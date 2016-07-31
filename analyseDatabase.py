@@ -80,7 +80,7 @@ def main():
         num_comments = 1
         for c in db.getComments(r):
             print('COMMENT_NUM:', num_comments)
-            if num_comments <= 5:
+            if num_comments <= 10:
                 try:
                     response = sa.text_sentiment(c)
                     analysis.addComment(response)
@@ -106,7 +106,7 @@ def main():
     pprint(reportAnalysis[0].text)
     sa.output_json(reportAnalysis[0].comments,
                    os.path.join('sentiment', 'comments.json'))
-    sa.output_json(reportAnalysis[0].comments,
+    sa.output_json(reportAnalysis[0].articles,
                    os.path.join('sentiment', 'report.json'))
     sa.output_json(reportAnalysis[0].text,
                    os.path.join('sentiment', 'text.json'))
