@@ -116,6 +116,9 @@ class ArticleGatherer:
                     print('HTTP error at row:', row_num,
                           'with URL:', article_url)
                     continue
+                except socket.timeout:
+                    print('TIMEOUT error at row:', row_num, 'with URL:',
+                          article_url)
                 except simplejson.scanner.JSONDecodeError:
                     print('JSON error at row:', row_num,
                           'with URL:', article_url)
@@ -190,12 +193,39 @@ class ArticleGatherer:
         NotImplemented
 
 class SentimentAnalyser:
-    """Sentiment analysis using the haven on demand API."""
+    """Sentiment analysis using the haven on demand API.
 
-    def __init__(self, api_key, version='v1'):
-        self.client = HODClient(apikey=api_key, version=version)
+    TODO:
+        Exception handling of engines - what if the specified engine is not a
+            valid option?
+    """
 
-    def text_sentiment(self, text, func=None, **kwargs):
+    def __init__(self, HPE_api_key=None, IBM_api_key=None, version='v1',
+                 sent_used='HPE'):
+
+        self.sent_used = sent_used
+
+        if self.sent_used == 'HPE':
+            self.client = HODClient(apikey=HPE_api_key, version=version)
+        elif self.sent_used == 'IBM':
+            self.client = AlchemyLanguageV1(api_key=IBM_api_key)
+
+    def text_sentiment(self, text, **kwargs):
+        """Determine the text sentiment engine used."""
+        if self.sent_used == 'HPE':
+            return self.HPE_text_sentiment(text, **kwargs)
+        elif self.sent_used == 'IBM':
+            return self.IBM_text_sentiment(text, **kwargs)
+
+    def IBM_text_sentiment(self, text):
+        """Apply the IBM bluemix emtion analyser to a given text.
+
+        Params:
+            text: The text to analyse.
+        """
+        return self.client.emotion(text=text)
+
+    def HPE_text_sentiment(self, text, func=None, **kwargs):
         """Analyses the sentiment of a given text.
 
         Params:
@@ -251,7 +281,11 @@ def main():
 
     ot_articles = articles.relevant_articles(chosen)
 
-    sent = SentimentAnalyser(api_key=params['HavenOnDemand']['api_key'])
+    sent = SentimentAnalyser(
+        HPE_api_key=params['HavenOnDemand']['api_key'],
+        IBM_api_key=params['Watson']['api_key'],
+        sent_used='HPE'
+    )
 
     sentiment = defaultdict(dict)
     for topic in params['Topics']:

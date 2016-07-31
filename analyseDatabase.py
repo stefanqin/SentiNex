@@ -3,10 +3,12 @@
 
 import os
 import re
-from abc_scraper import SentimentAnalyser
+import requests
+
+from abc_scraper import gen_params, SentimentAnalyser
 from pprint import pprint
 
-API_KEY = "dd489551-a005-42a3-988d-7c59b3ad47da"
+params = gen_params()
 
 
 class FileDatabase:
@@ -66,20 +68,32 @@ class Analysis:
 
 def main():
     db = FileDatabase()
-    sa = SentimentAnalyser(API_KEY)
+    sa = SentimentAnalyser(HPE_api_key=params['HavenOnDemand']['api_key'],
+                           IBM_api_key=params['Watson']['api_key'],
+                           sent_used='IBM')
     reportAnalysis = []
 
     releases = db.getReleases()
     num = 1
     for r in releases:
         analysis = Analysis()
+        num_comments = 1
         for c in db.getComments(r):
-            print(c)
-            response = sa.text_sentiment(c)
-            analysis.addComment(response)
-         # for a in db.getArticles(r):
-         #     response = sa.text_sentiment(a)
-         #   analysis.addArticle(response)
+            print('COMMENT_NUM:', num_comments)
+            if num_comments <= 5:
+                try:
+                    response = sa.text_sentiment(c)
+                    analysis.addComment(response)
+                except requests.exceptions.ConnectionError:
+                    print('TIMEOUT:', num_comments)
+                    num_comments += 1
+                    continue
+                num_comments += 1
+            else:
+                break
+        for a in db.getArticles(r):
+            response = sa.text_sentiment(a)
+            analysis.addArticle(response)
 
         analysis.addText(sa.text_sentiment(db.getRelease(r)))
         reportAnalysis.append(analysis)
