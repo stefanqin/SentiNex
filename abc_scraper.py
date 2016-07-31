@@ -246,6 +246,10 @@ class SentimentAnalyser:
 
         return response
 
+    def output_json(self, output, name):
+        """Outputs JSON to a file."""
+        with open(name, 'w') as outfile:
+            json.dumps(output, outfile, indent=2)
 
 def gen_params() -> dict:
     """Generate params based on .ini file."""
@@ -293,6 +297,7 @@ def main():
             sentiment[topic] = sent.text_sentiment(article['textPlain'])
 
     pprint(sentiment)
+    sent.output_json(sentiment, 'ABC_sent.json')
 
 if __name__ == '__main__':
     main()

@@ -104,6 +104,7 @@ def main():
     pprint(reportAnalysis[0].comments)
     print('#'*20)
     pprint(reportAnalysis[0].text)
+    sent.output_json(sentiment, 'ABC_sent.json')
 
 if __name__ == '__main__':
     main()
