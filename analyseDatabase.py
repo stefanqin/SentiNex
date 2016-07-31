@@ -80,7 +80,7 @@ def main():
         num_comments = 1
         for c in db.getComments(r):
             print('COMMENT_NUM:', num_comments)
-            if num_comments <= 5:
+            if num_comments <= 10:
                 try:
                     response = sa.text_sentiment(c)
                     analysis.addComment(response)
