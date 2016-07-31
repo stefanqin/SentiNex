@@ -106,7 +106,7 @@ def main():
     pprint(reportAnalysis[0].text)
     sa.output_json(reportAnalysis[0].comments,
                    os.path.join('sentiment', 'comments.json'))
-    sa.output_json(reportAnalysis[0].comments,
+    sa.output_json(reportAnalysis[0].articles,
                    os.path.join('sentiment', 'report.json'))
     sa.output_json(reportAnalysis[0].text,
                    os.path.join('sentiment', 'text.json'))
