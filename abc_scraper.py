@@ -249,7 +249,7 @@ class SentimentAnalyser:
     def output_json(self, output, name):
         """Outputs JSON to a file."""
         with open(name, 'w') as outfile:
-            json.dumps(output, outfile, indent=2)
+            json.dump(output, outfile, indent=2)
 
 def gen_params() -> dict:
     """Generate params based on .ini file."""

@@ -25,7 +25,7 @@ class FileDatabase:
 
     def getRelease(self, name):
         lines = []
-        with open(self.base + name + "/" + "release.txt", 'r+') as f:
+        with open(self.base + name + "/" + "report.py", 'r+') as f:
             lines = f.readlines()
         return ''.join(lines)
 
@@ -95,7 +95,7 @@ def main():
             response = sa.text_sentiment(a)
             analysis.addArticle(response)
 
-        # analysis.addText(sa.text_sentiment(db.getRelease(r)))
+        analysis.addText(sa.text_sentiment(db.getRelease(r)))
         reportAnalysis.append(analysis)
         print(num)
         num += 1
@@ -104,7 +104,12 @@ def main():
     pprint(reportAnalysis[0].comments)
     print('#'*20)
     pprint(reportAnalysis[0].text)
-    sent.output_json(sentiment, 'ABC_sent.json')
+    sa.output_json(reportAnalysis[0].comments,
+                   os.path.join('sentiment', 'comments.json'))
+    sa.output_json(reportAnalysis[0].comments,
+                   os.path.join('sentiment', 'report.json'))
+    sa.output_json(reportAnalysis[0].text,
+                   os.path.join('sentiment', 'text.json'))
 
 if __name__ == '__main__':
     main()
