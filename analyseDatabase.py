@@ -1,9 +1,10 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 import os
 import re
-import json
+import requests
+
 from abc_scraper import gen_params, SentimentAnalyser
 from pprint import pprint
 
@@ -47,14 +48,6 @@ class FileDatabase:
                 for l in f.readlines():
                     r.append(l)
         return r
-    def addComment(self, report, text):
-    	fileName = self.getLatestComment(report)
-    	with open(str(self.base + report + "/comments/" + str(fileName)), 'w+') as f:
-    		f.write()
-
-
-
-
 
 
 class Analysis:
@@ -102,7 +95,7 @@ def main():
             response = sa.text_sentiment(a)
             analysis.addArticle(response)
 
-        analysis.addText(sa.text_sentiment(db.getRelease(r)))
+        # analysis.addText(sa.text_sentiment(db.getRelease(r)))
         reportAnalysis.append(analysis)
         print(num)
         num += 1
